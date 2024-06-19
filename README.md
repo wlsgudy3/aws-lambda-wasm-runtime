@@ -125,4 +125,4 @@ To learn more about WasmEdge, take a look at the following resources:
 - WasmEdge [Tutorials](https://wasmedge.org/#tutorials)
 - Check out [Second State's repositories](https://github.com/second-state) for more demos, as well as resources on Rust and Wasm
 
-//////
+////////
