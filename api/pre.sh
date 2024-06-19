@@ -8,7 +8,7 @@ rm WasmEdge.tar.gz
 # compile all .wasm to .so
 for file in *.wasm; do
     [ -f "$file" ] || continue
-    ./wasmedgec --generic-binary "$file" "${file/.wasm/.so}"
+    ./wasmedgec --generic-binary "$file" "${file/.wasm/.so}" --enable-wasi
     rm "$file"
 done
 
