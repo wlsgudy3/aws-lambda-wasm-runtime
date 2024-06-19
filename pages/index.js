@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import Head from 'next/head';
+import styles from '../styles/Home.module.css';
 
 export default function Home() {
   const [enableWasm, setEnableWasm] = useState(false);
-  const [origImg, setOrigImg] = useState(null);
-  const [resImg, setResImg] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [wasmOutput, setWasmOutput] = useState('');
 
   return (
     <div className={styles.container}>
@@ -22,16 +21,9 @@ export default function Home() {
 
         <div className={styles.operating}>
           <div>
-            <input type="file" id="fileElem" accept="image/png" className={styles['visually-hidden']} onChange={fileSelected} />
-            <label htmlFor="fileElem" className={styles.noselect}>Select an image</label>
-            <div className={styles.thumb}>
-              {origImg && <img src={origImg.src} />}
-            </div>
-          </div>
-          <div>
-            <button id="runBtn" onClick={runWasm} disabled={!enableWasm || loading}>{loading ? 'Loading' : 'Run Wasm'}</button>
-            <div className={styles.thumb}>
-              {resImg && <img src={resImg.src} />}
+            <button id="runBtn" onClick={runWasm} disabled={loading}>{loading ? 'Loading' : 'Run Wasm'}</button>
+            <div className={styles.result}>
+              {wasmOutput && <p>{wasmOutput}</p>}
             </div>
           </div>
         </div>
@@ -49,59 +41,18 @@ export default function Home() {
     </div>
   );
 
-  function fileSelected(e) {
-    const file = e.target.files[0];
-    if (!file) {
-      return;
-    }
-
-    if (!file.type.startsWith('image/png')) {
-      alert('Please select a png image.');
-      return;
-    }
-
-    const img = document.createElement('img');
-    img.file = file
-
-    const reader = new FileReader();
-    reader.onload = (function(aImg) {
-      return function(e) {
-        aImg.src = e.target.result;
-        setOrigImg(aImg);
-        setEnableWasm(true);
-      };
-    })(img);
-    reader.readAsDataURL(file);
-  }
-
-  function runWasm(e) {
-    const img = document.createElement('img');
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      setLoading(true);
-      var oReq = new XMLHttpRequest();
-      oReq.open("POST", process.env.NEXT_PUBLIC_FUNCTION_URL, true);
-      oReq.onload = (function(bImg) {
-        return function (oEvent) {
-          setLoading(false);
-          const typedArray = new Uint8Array(oReq.response.match(/[\da-f]{2}/gi).map(function (h) {
-            return parseInt(h, 16);
-          }));
-          const b = new Blob([typedArray.buffer], {type: 'image/png'});
-          bImg.src = URL.createObjectURL(b);
-          setResImg(bImg);
-          URL.revokeObjectURL(b);
-        };
-      })(img);
-      oReq.send(buf2hex(e.target.result));
+  function runWasm() {
+    setLoading(true);
+    var oReq = new XMLHttpRequest();
+    oReq.open("POST", process.env.NEXT_PUBLIC_FUNCTION_URL, true);
+    oReq.onload = function(oEvent) {
+      setLoading(false);
+      if (oReq.status >= 200 && oReq.status < 300) {
+        setWasmOutput(oReq.responseText);
+      } else {
+        console.error("Failed to fetch WebAssembly output");
+      }
     };
-    reader.readAsArrayBuffer(origImg.file);
+    oReq.send();
   }
-}
-
-function buf2hex(buffer) { // buffer is an ArrayBuffer
-  return [...new Uint8Array(buffer)]
-      .map(x => x.toString(16).padStart(2, '0'))
-      .join('');
 }
