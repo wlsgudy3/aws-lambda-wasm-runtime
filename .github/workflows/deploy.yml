@@ -23,7 +23,7 @@ jobs:
           NEXT_PUBLIC_FUNCTION_URL: ${{ secrets.NEXT_PUBLIC_FUNCTION_URL }}
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@4.4.3
+        uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: out # The folder the action should deploy.
