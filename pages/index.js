@@ -3,7 +3,6 @@ import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
-  const [enableWasm, setEnableWasm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [wasmOutput, setWasmOutput] = useState('');
 
