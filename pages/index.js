@@ -7,7 +7,7 @@ export default function Home() {
   const [wasmOutput, setWasmOutput] = useState('');
   const [walletAddress, setWalletAddress] = useState('');
   const [displayWalletAddress, setDisplayWalletAddress] = useState('');
-  const [hashIndex, setHashIndex] = useState(0); // 0으로 초기화하여 처음부터 출력하도록 설정
+  const [hashIndex, setHashIndex] = useState(-1); // -1로 초기화하여 초기 상태에서 해시 출력이 없도록 설정
 
   const hashResults = [
     "32d1f25ab0debd0040cal87864251cebfe5e94c6f7491865e50e36da6d9a0f1f6",
@@ -26,13 +26,31 @@ export default function Home() {
 
   useEffect(() => {
     let timer;
-    if (!loading && hashIndex >= 0 && hashIndex < hashResults.length) {
+    if (hashIndex >= 0) {
       timer = setTimeout(() => {
         setHashIndex((prevIndex) => (prevIndex + 1) % hashResults.length);
       }, 2000); // 2초 주기로 설정
     }
     return () => clearTimeout(timer);
-  }, [hashIndex, loading]); // hashIndex와 loading이 변경될 때 useEffect가 실행되도록 설정
+  }, [hashIndex]); // hashIndex가 변경될 때마다 useEffect가 실행되도록 설정
+
+  const runWasm = () => {
+    setLoading(true);
+    setDisplayWalletAddress(walletAddress); // Display the wallet address
+    setHashIndex(0); // Reset hash index to start displaying from the beginning
+
+    var oReq = new XMLHttpRequest();
+    oReq.open("POST", process.env.NEXT_PUBLIC_FUNCTION_URL, true);
+    oReq.onload = function(oEvent) {
+      setLoading(false);
+      if (oReq.status >= 200 && oReq.status < 300) {
+        setWasmOutput(oReq.responseText);
+      } else {
+        console.error("Failed to fetch WebAssembly output");
+      }
+    };
+    oReq.send();
+  };
 
   return (
     <div className={styles.container}>
@@ -64,7 +82,7 @@ export default function Home() {
               {displayWalletAddress && <p>Wallet Address: {displayWalletAddress}</p>}
             </div>
             <div className={styles.hashResults}>
-              {hashResults[hashIndex] && <p>hash_result: {hashResults[hashIndex]}</p>}
+              {hashIndex >= 0 && <p>hash_result: {hashResults[hashIndex]}</p>}
             </div>
           </div>
         </div>
@@ -81,21 +99,4 @@ export default function Home() {
       </footer>
     </div>
   );
-
-  function runWasm() {
-    setLoading(true);
-    setDisplayWalletAddress(walletAddress); // Display the wallet address
-    setHashIndex(0); // Reset hash index to start displaying from the beginning
-    var oReq = new XMLHttpRequest();
-    oReq.open("POST", process.env.NEXT_PUBLIC_FUNCTION_URL, true);
-    oReq.onload = function(oEvent) {
-      setLoading(false);
-      if (oReq.status >= 200 && oReq.status < 300) {
-        setWasmOutput(oReq.responseText);
-      } else {
-        console.error("Failed to fetch WebAssembly output");
-      }
-    };
-    oReq.send();
-  }
 }
