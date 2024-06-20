@@ -61,7 +61,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="https://github.com/WasmEdge/WasmEdge">WasmEdge!</a>
+          Capstone Project <a href="https://github.com/WasmEdge/WasmEdge">Serverless+WasmEdge</a>
         </h1>
 
         <div className={styles.operating}>
