@@ -5,6 +5,8 @@ import styles from '../styles/Home.module.css';
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [wasmOutput, setWasmOutput] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
+  const [displayWalletAddress, setDisplayWalletAddress] = useState('');
 
   return (
     <div className={styles.container}>
@@ -20,9 +22,20 @@ export default function Home() {
 
         <div className={styles.operating}>
           <div>
-            <button id="runBtn" onClick={runWasm} disabled={loading}>{loading ? 'Loading' : 'Run Wasm'}</button>
+            <input
+              type="text"
+              placeholder="내 wallet 주소"
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
+            />
+            <button id="runBtn" onClick={runWasm} disabled={loading}>
+              {loading ? 'Loading' : 'Run Wasm'}
+            </button>
             <div className={styles.result}>
               {wasmOutput && <p>{wasmOutput}</p>}
+            </div>
+            <div className={styles.walletDisplay}>
+              {displayWalletAddress && <p>Wallet Address: {displayWalletAddress}</p>}
             </div>
           </div>
         </div>
@@ -42,6 +55,7 @@ export default function Home() {
 
   function runWasm() {
     setLoading(true);
+    setDisplayWalletAddress(walletAddress); // Display the wallet address
     var oReq = new XMLHttpRequest();
     oReq.open("POST", process.env.NEXT_PUBLIC_FUNCTION_URL, true);
     oReq.onload = function(oEvent) {
