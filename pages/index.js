@@ -28,11 +28,12 @@ export default function Home() {
     let timer;
     if (hashIndex >= 0 && hashIndex < hashResults.length) {
       timer = setTimeout(() => {
-        setHashIndex(hashIndex + 1);
-      }, 1000);
+        // 다음 해시를 표시하고, 끝까지 표시했다면 다시 처음부터 시작
+        setHashIndex((prevIndex) => (prevIndex + 1) % hashResults.length);
+      }, 2000); // 2초 주기로 설정
     }
     return () => clearTimeout(timer);
-  }, [hashIndex]);
+  }, [hashIndex]); // hashIndex가 변경될 때마다 useEffect가 실행되도록 설정
 
   return (
     <div className={styles.container}>
