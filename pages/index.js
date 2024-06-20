@@ -37,7 +37,6 @@ export default function Home() {
   const runWasm = () => {
     setLoading(true);
     setDisplayWalletAddress(walletAddress); // Display the wallet address
-    setHashIndex(0); // Reset hash index to start displaying from the beginning
 
     var oReq = new XMLHttpRequest();
     oReq.open("POST", process.env.NEXT_PUBLIC_FUNCTION_URL, true);
@@ -50,6 +49,11 @@ export default function Home() {
       }
     };
     oReq.send();
+
+    // 5초 타이머 설정 후 hash_result 출력
+    setTimeout(() => {
+      setHashIndex(0); // Reset hash index to start displaying from the beginning
+    }, 5000); // 5초 후에 실행
   };
 
   return (
