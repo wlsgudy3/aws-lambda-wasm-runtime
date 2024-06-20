@@ -7,7 +7,7 @@ export default function Home() {
   const [wasmOutput, setWasmOutput] = useState('');
   const [walletAddress, setWalletAddress] = useState('');
   const [displayWalletAddress, setDisplayWalletAddress] = useState('');
-  const [hashIndex, setHashIndex] = useState(-1); // -1로 초기화하여 초기 상태에서 해시 출력이 없도록 설정
+  const [hashIndex, setHashIndex] = useState(0); // 0으로 초기화하여 처음부터 출력하도록 설정
 
   const hashResults = [
     "32d1f25ab0debd0040cal87864251cebfe5e94c6f7491865e50e36da6d9a0f1f6",
@@ -26,14 +26,13 @@ export default function Home() {
 
   useEffect(() => {
     let timer;
-    if (hashIndex >= 0 && hashIndex < hashResults.length) {
+    if (!loading && hashIndex >= 0 && hashIndex < hashResults.length) {
       timer = setTimeout(() => {
-        // 다음 해시를 표시하고, 끝까지 표시했다면 다시 처음부터 시작
         setHashIndex((prevIndex) => (prevIndex + 1) % hashResults.length);
       }, 2000); // 2초 주기로 설정
     }
     return () => clearTimeout(timer);
-  }, [hashIndex]); // hashIndex가 변경될 때마다 useEffect가 실행되도록 설정
+  }, [hashIndex, loading]); // hashIndex와 loading이 변경될 때 useEffect가 실행되도록 설정
 
   return (
     <div className={styles.container}>
@@ -65,7 +64,7 @@ export default function Home() {
               {displayWalletAddress && <p>Wallet Address: {displayWalletAddress}</p>}
             </div>
             <div className={styles.hashResults}>
-              {hashIndex >= 0 && <p>hash_result: {hashResults[hashIndex]}</p>}
+              {hashResults[hashIndex] && <p>hash_result: {hashResults[hashIndex]}</p>}
             </div>
           </div>
         </div>
