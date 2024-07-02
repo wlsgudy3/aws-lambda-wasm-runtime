@@ -1,7 +1,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-function _runWasm(reqBody) {
+function _runWasm() {
   return new Promise((resolve, reject) => {
     const wasmedge = spawn(path.join(__dirname, 'wasmedge'), ['--dir', '.', path.join(__dirname, 'wasmedge_manager.so')]);
 
@@ -11,28 +11,19 @@ function _runWasm(reqBody) {
     });
 
     wasmedge.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
+      d.push(data);
     });
 
     wasmedge.on('close', (code) => {
-      if (code !== 0) {
-        reject(`wasmedge process exited with code ${code}`);
-      } else {
         let buf = Buffer.concat(d);
         resolve(buf);
-      }
     });
 
-    if (reqBody) {
-      wasmedge.stdin.write(reqBody);
-    }
-    wasmedge.stdin.end();
   });
 }
 
 exports.handler = async function(event, context) {
-  try {
-    let buf = await _runWasm(event.body);
+    let buf = await _runWasm();
     return {
       statusCode: 200,
       headers: {
@@ -42,11 +33,4 @@ exports.handler = async function(event, context) {
       },
       body: buf.toString()
     };
-  } catch (error) {
-    console.error(`Error: ${error}`);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' }),
-    };
-  }
 };
